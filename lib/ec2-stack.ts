@@ -42,8 +42,8 @@ export class EC2Stack extends cdk.Stack {
     new ec2.Instance(this, "Instance", {
       vpc,
       instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.T2,
-        ec2.InstanceSize.MICRO,
+        ec2.InstanceClass.T4G,
+        ec2.InstanceSize.NANO,
       ),
       machineImage: ami,
       securityGroup: securityGroup,
