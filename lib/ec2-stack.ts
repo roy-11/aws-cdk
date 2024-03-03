@@ -2,8 +2,14 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 
+interface EC2StackProps extends cdk.StackProps {
+  ec2InstanceClass: string;
+  ec2InstanceSize: string;
+  cpuType: string;
+}
+
 export class EC2Stack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: EC2StackProps) {
     super(scope, id, props);
 
     // デフォルトのvpcを取得
@@ -32,18 +38,18 @@ export class EC2Stack extends cdk.Stack {
       "Allow SSH Access",
     );
 
-    // AMIはX86_64 CPUのAmazon Linux 2023 を指定
+    // AMIを指定
     const ami = new ec2.AmazonLinuxImage({
       generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2023,
-      cpuType: ec2.AmazonLinuxCpuType.X86_64,
+      cpuType: props.cpuType as ec2.AmazonLinuxCpuType,
     });
 
     // 指定した内容でEC2インスタンスを作成
     new ec2.Instance(this, "Instance", {
       vpc,
       instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.T4G,
-        ec2.InstanceSize.NANO,
+        props.ec2InstanceClass as ec2.InstanceClass,
+        props.ec2InstanceSize as ec2.InstanceSize,
       ),
       machineImage: ami,
       securityGroup: securityGroup,
