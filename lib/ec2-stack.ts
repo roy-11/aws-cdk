@@ -3,12 +3,8 @@ import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { getSSMParameter } from "./ssm-parameter-store-stack";
 
-interface StackProps extends cdk.StackProps {
-  envName: string;
-}
-
 export class EC2Stack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: StackProps) {
+  constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
 
     const envName = props.envName;

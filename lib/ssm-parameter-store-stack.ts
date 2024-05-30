@@ -24,12 +24,8 @@ const environmentConfigs: { [key: string]: EnvironmentConfig } = {
   },
 };
 
-interface StackProps extends cdk.StackProps {
-  envName: string;
-}
-
 export class SSMParameterStoreStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: StackProps) {
+  constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
 
     const envName = props.envName;
