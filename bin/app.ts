@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-// import "source-map-support/register";
 import { App, StackProps } from "aws-cdk-lib";
-import * as ssm from "aws-cdk-lib/aws-ssm";
 import { EC2Stack } from "../lib/ec2-stack";
 import { SSMParameterStoreStack } from "../lib/ssm-parameter-store-stack";
 
