@@ -1,16 +1,21 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import { getSSMParameter } from "./ssm-parameter-store-stack";
 
-interface EC2StackProps extends cdk.StackProps {
-  ec2InstanceClass: string;
-  ec2InstanceSize: string;
-  cpuType: string;
+interface StackProps extends cdk.StackProps {
+  envName: string;
 }
 
 export class EC2Stack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: EC2StackProps) {
+  constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
+
+    const envName = props.envName;
+    const ec2InstanceClass = getSSMParameter(this, envName, "ec2InstanceClass");
+    const ec2InstanceSize = getSSMParameter(this, envName, "ec2InstanceSize");
+    const cpuType = getSSMParameter(this, envName, "cpuType");
+    const ebsVolumeGiB = Number(getSSMParameter(this, envName, "ebsVolumeGiB"));
 
     // デフォルトのvpcを取得
     const vpc = ec2.Vpc.fromLookup(this, "VPC", {
@@ -41,19 +46,25 @@ export class EC2Stack extends cdk.Stack {
     // AMIを指定
     const ami = new ec2.AmazonLinuxImage({
       generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2023,
-      cpuType: props.cpuType as ec2.AmazonLinuxCpuType,
+      cpuType: cpuType as ec2.AmazonLinuxCpuType,
     });
 
     // 指定した内容でEC2インスタンスを作成
     new ec2.Instance(this, "Instance", {
       vpc,
       instanceType: ec2.InstanceType.of(
-        props.ec2InstanceClass as ec2.InstanceClass,
-        props.ec2InstanceSize as ec2.InstanceSize,
+        ec2InstanceClass as ec2.InstanceClass,
+        ec2InstanceSize as ec2.InstanceSize,
       ),
       machineImage: ami,
       securityGroup: securityGroup,
       keyPair: key,
+      blockDevices: [
+        {
+          deviceName: "/dev/xvda",
+          volume: ec2.BlockDeviceVolume.ebs(ebsVolumeGiB),
+        },
+      ],
     });
   }
 }
